@@ -1,6 +1,6 @@
 # Topiary Home Manager Module
 
-A [Home Manager](https://github.com/nix-community/home-manager) module for [Topiary](https://github.com/tweag/topiary) formatter with built-in Nushell support.
+A generic [Home Manager](https://github.com/nix-community/home-manager) module for [Topiary](https://github.com/tweag/topiary) formatter.
 
 ## Installation
 
@@ -16,37 +16,45 @@ let
 in
 {
   imports = [ "${topiary-module}/default.nix" ];
-  programs.topiary.enable = true;
+
+  programs.topiary = {
+    enable = true;
+    languages.nu = {
+      extensions = [ "nu" ];
+      queryFile = "${topiary-module}/languages/nu.scm";
+      grammar.source.git = {
+        git = "https://github.com/nushell/tree-sitter-nu.git";
+        rev = "18b7f951e0c511f854685dfcc9f6a34981101dd6";
+      };
+    };
+  };
 }
 ```
 
 ## Configuration
 
-### Basic Usage (Nushell only)
-```nix
-programs.topiary.enable = true;
-```
-
 ### Multiple Languages
 ```nix
 programs.topiary = {
   enable = true;
-  languages.nickel = {
-    extensions = [ "ncl" ];
-    queryFile = ./nickel.scm;
-    grammar.source.git = {
-      git = "https://github.com/nickel-lang/tree-sitter-nickel";
-      rev = "some-revision-hash";
+  languages = {
+    nu = {
+      extensions = [ "nu" ];
+      queryFile = ./nu.scm;
+      grammar.source.git = {
+        git = "https://github.com/nushell/tree-sitter-nu.git";
+        rev = "18b7f951e0c511f854685dfcc9f6a34981101dd6";
+      };
+    };
+    nickel = {
+      extensions = [ "ncl" ];
+      queryFile = ./nickel.scm;
+      grammar.source.git = {
+        git = "https://github.com/nickel-lang/tree-sitter-nickel";
+        rev = "some-revision-hash";
+      };
     };
   };
-};
-```
-
-### Disable Nushell
-```nix
-programs.topiary = {
-  enable = true;
-  nushell.enable = false;
 };
 ```
 
@@ -59,6 +67,5 @@ cat script.nu | topiary format --language nu
 
 The module automatically:
 - Installs topiary package
-- Fetches Nushell query file from this repository
-- Generates `languages.ncl` configuration
+- Generates `languages.ncl` configuration from your language definitions
 - Sets `TOPIARY_CONFIG_FILE` and `TOPIARY_LANGUAGE_DIR` environment variables for VS Code compatibility

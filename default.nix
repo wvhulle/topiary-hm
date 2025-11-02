@@ -95,9 +95,6 @@ in
       '';
     };
 
-    nushell = {
-      enable = mkEnableOption "nushell language support for topiary" // { default = true; };
-    };
   };
 
   config = mkIf cfg.enable (mkMerge [
@@ -120,21 +117,5 @@ in
       };
     }
 
-    # Nushell-specific configuration
-    (mkIf cfg.nushell.enable {
-      programs.topiary.languages.nu = {
-        extensions = [ "nu" ];
-        queryFile = "${pkgs.fetchFromGitHub {
-          owner = "blindfs";
-          repo = "topiary-nushell";
-          rev = "fd78be3b7e4a8bd7d63b7ae3e5c7e4bb5c8b8b6f"; # commit with original queries
-          sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
-        }}/languages/nu.scm";
-        grammar.source.git = {
-          git = "https://github.com/nushell/tree-sitter-nu.git";
-          rev = "18b7f951e0c511f854685dfcc9f6a34981101dd6";
-        };
-      };
-    })
   ]);
 }
